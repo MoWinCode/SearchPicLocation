@@ -8,7 +8,6 @@ import threading
 import warnings
 from concurrent.futures import ThreadPoolExecutor
 
-import sys
 import os
 
 from main_form import *
@@ -261,6 +260,8 @@ def check_pic():
 
 
 if __name__ == '__main__':
+    import sys
+
     warnings.filterwarnings('ignore')
 
     app = QtWidgets.QApplication(sys.argv)
