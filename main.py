@@ -11,6 +11,7 @@ from concurrent.futures import ThreadPoolExecutor
 import os
 
 from main_form import *
+import show_pic
 import qss
 from PyQt5 import QtGui, QtWidgets
 
@@ -104,7 +105,7 @@ def open_in_explorer():
         pic_path = mid(url_list[i.row()], "：", "&")
         if os.path.exists(pic_path):
             # print("explorer.exe " + pic_path.replace("/", "\\"))
-            os.system("start -B explorer.exe /n,/select," + pic_path.replace("/", "\\"))
+            os.system("start /B explorer.exe /n,/select," + pic_path.replace("/", "\\"))
         else:
             QtWidgets.QMessageBox.warning(MainWindow, "警告", "您选择的图片中无GPS坐标，请自行查看！")
 
@@ -119,17 +120,14 @@ def open_url():
 
 
 def show_picture():
-    try:
-        select_row = ui.lstPictures.currentIndex().row()
-        # pic_path = re.findall(".*：(.*).*", url_list[select_row])
-        pic_path = mid(url_list[select_row], "：", "&")
-        pic = QtGui.QPixmap(pic_path)
+    windows = []
+    index = ui.lstPictures.selectedIndexes()
+    for i in index:
+        pic_path = mid(url_list[i.row()], "：", "&")
+        windows.append(show_pic.PicWindow(pic_path))
 
-        size = calc_size(pic)
-        ui.lblPicture.setMaximumSize(size['width'], size['height'])
-        ui.lblPicture.setPixmap(pic)
-    except IndexError:
-        pass
+    for window in windows:
+        window.start()
 
 
 def calc_size(pic):
@@ -161,6 +159,7 @@ def set_enable(status):
     ui.cmdStart.setEnabled(status)
     ui.cmdOpenMap.setEnabled(status)
     ui.cmdOpenFile.setEnabled(status)
+    ui.cmdViewPicture.setEnabled(status)
 
 
 def find_file():
@@ -180,7 +179,7 @@ def change_txt():
     if ui.txtPath.text() == '' or not os.path.exists(ui.txtPath.text()):
         set_enable(False)
     else:
-        set_enable(True)
+        pass
 
 
 def start_check():
@@ -278,11 +277,10 @@ if __name__ == '__main__':
     ui.cmdStart.clicked.connect(start_check)
     ui.cmdOpenMap.clicked.connect(open_url)
     ui.cmdOpenFile.clicked.connect(open_in_explorer)
+    ui.cmdViewPicture.clicked.connect(show_picture)
     ui.txtPath.textChanged.connect(change_txt)
-    ui.lstPictures.itemClicked.connect(show_picture)
+    # ui.lstPictures.itemClicked.connect(show_picture)
     ui.lstPictures.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
-    ui.lblPicture.setScaledContents(True)
-
 
     ret = ''
     path = sys.argv[1:]
